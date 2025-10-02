@@ -17,9 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include "btle.hpp"
+#include "bluefruit.h"
 #include "configSD.hpp"
-#include "scheduler.hpp"
+#include "schedudler.hpp"
 
 #ifndef muscleSensor_hpp
 #define muscleSensor_hpp
@@ -31,14 +31,14 @@ public:
   muscleSensorClass(void);
   ~muscleSensorClass();
 
-  int init(unsigned long period, btleClass btle);
+  int init(unsigned long period, BLEUart bleuart);
   int memory[MAX_NB_MUSCLE_SENSOR] = {};
   void getValue(int *capteur1, int *capteur2);
   void muscleAcquisition(void);
 
-  btleClass btle;
+  BLEUart bleuart;
   int storedValues[MAX_NB_MUSCLE_SENSOR];
-  Scheduler *scheduler;
+  Schedudler *scheduler;
 
 private:
   int lowpass(int value, int index);

@@ -17,20 +17,42 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __scheduler_hpp
-#define __scheduler_hpp
+#include "schedudler.hpp"
+#include <Arduino.h>
 
-class Scheduler
+//*********************************************
+//*
+//*       Constructor
+//*
+//*********************************************
+Schedudler::Schedudler(unsigned long loopTimestamp, unsigned long refreshDelay)
 {
-public:
-  Scheduler(unsigned long loopTimestamp, unsigned long refreshDelay);
-  Scheduler();
-  bool needToBeExecuted(void);
+  this->loopTimestamp = loopTimestamp;
+  this->refreshDelay = refreshDelay;
+}
 
-private:
-  unsigned long displayLoopDelay;
-  unsigned long loopTimestamp;
-  unsigned long refreshDelay;
-};
+//*********************************************
+//*
+//*       Constructor
+//*
+//*********************************************
+Schedudler::Schedudler()
+{
+}
 
-#endif /* __scheduler_hpp */
+//*********************************************
+//*
+//*       needToBeExecuted
+//*
+//*********************************************
+bool Schedudler::needToBeExecuted(void)
+{
+  displayLoopDelay = millis() - loopTimestamp;
+
+  if (displayLoopDelay >= refreshDelay)
+  {
+    loopTimestamp = millis();
+    return true;
+  }
+  return false;
+}

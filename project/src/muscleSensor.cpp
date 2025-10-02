@@ -63,9 +63,9 @@ int muscleSensorClass::lowpass(int value, int index)
 //*       init
 //*
 //*********************************************
-int muscleSensorClass::init(unsigned long period, btleClass btle)
+int muscleSensorClass::init(unsigned long period, BLEUart bleuart)
 {
-    this->btle = btle;
+    this->bleuart = bleuart;
 
     for (int i = 0; i < config3dHandz.nbMuscleSensor; i++)
     {
@@ -87,7 +87,7 @@ int muscleSensorClass::init(unsigned long period, btleClass btle)
     */
 
     // init scheduler
-    scheduler = new Scheduler(millis(), MUSCLE_PERIOD_IN_MS);
+    scheduler = new Schedudler(millis(), MUSCLE_PERIOD_IN_MS);
     Serial.println("muscleClass::init => OK\n");
     return 0;
 }
@@ -116,7 +116,9 @@ int tmpDisplay = 0;
 void muscleSensorClass::muscleAcquisition(void)
 {
     char tmp[10];
+ #ifdef __DEBUG__
     char tmp2[2048] = "";
+    #endif
     int index = 0;
 
     int value[MAX_NB_MUSCLE_SENSOR];
@@ -136,14 +138,15 @@ void muscleSensorClass::muscleAcquisition(void)
     int c =
         (1 - digitalRead(config3dHandz.joystickDigitalInputTab[0])) * 8 +
         (1 - digitalRead(config3dHandz.joystickDigitalInputTab[1])) * 4 +
-        (1 - digitalRead(config3dHandz.joystickDigitalInputTab[2])) * 2 + 1 - digitalRead(config3dHandz.joystickDigitalInputTab[3]);
+        (1 - digitalRead(config3dHandz.joystickDigitalInputTab[2])) * 2 + 
+        1 - digitalRead(config3dHandz.joystickDigitalInputTab[3]);
 
     tmp[index] = c;
     index++;
     tmp[index] = 90;
     index++;
 
-    btle.write(tmp, index);
+    bleuart.write(tmp, index);
 
 #ifdef __DEBUG__
     if (tmpDisplay++ > 10)

@@ -25,6 +25,7 @@
 #include "muscleSensor.hpp"
 #include "config.hpp"
 #include "tools.hpp"
+#include "schedudler.hpp"
 
 extern Adafruit_SSD1306 display;
 
@@ -82,7 +83,7 @@ public:
   void init(void);
   void checkButtons(void);
   void update(void);
-  Scheduler *scheduler;
+  Schedudler *scheduler;
 
 private:
   int button_A_pressed;
