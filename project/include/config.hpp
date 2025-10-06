@@ -41,7 +41,7 @@ extern configSDClass config3dHandz;
 #define DISPLAY_DELAY 20      // timer refresh value for displayer
 #define APPLICATION_NAME "Baah Box"
 #define COPYRIGHT "(C) 2025 Orange SA"
-#define __DEBUG__ // debug mode (activate log on Serial outpout)
+//#define __DEBUG__ // debug mode (activate log on Serial outpout)
 
 //========================
 // BTLE parameters for default

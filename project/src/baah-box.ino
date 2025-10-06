@@ -29,6 +29,7 @@
 #include <Adafruit_LittleFS.h>
 #include <InternalFileSystem.h>
 
+
 // BLE Service
 BLEDfu  bledfu;  // OTA DFU service
 BLEDis  bledis;  // device information
@@ -45,6 +46,23 @@ configSDClass config3dHandz;
 
 
 
+
+// The following code is for setting a name based on the actual device MAC address
+// Where to go looking in memory for the MAC
+typedef volatile uint32_t REG32;
+#define pREG32 (REG32 *)
+#define MAC_ADDRESS_HIGH  (*(pREG32 (0x100000a8)))
+#define MAC_ADDRESS_LOW   (*(pREG32 (0x100000a4)))
+
+void byte_to_str(char* buff, uint8_t val) {  // convert an 8-bit byte to a string of 2 hexadecimal characters
+  buff[0] = nibble_to_hex(val >> 4);
+  buff[1] = nibble_to_hex(val);
+}
+
+char nibble_to_hex(uint8_t nibble) {  // convert a 4-bit nibble to a hexadecimal character
+  nibble &= 0xF;
+  return nibble > 9 ? nibble - 10 + 'A' : nibble + '0';
+}
 
 //*********************************************
 //*
@@ -84,8 +102,17 @@ void setup()
   Bluefruit.configPrphBandwidth(BANDWIDTH_MAX);
 
   Bluefruit.begin();
-  Bluefruit.setTxPower(4);    // Check bluefruit.h for supported values
-  //Bluefruit.setName(getMcuUniqueID()); // useful testing with multiple central connections
+  Bluefruit.setTxPower(4); 
+   char ble_name[13] = "BaahBoxXXXX"; 
+  // Replace the XXXX with the lowest two bytes of the MAC Address
+  // The commented lines show you how to get the WHOLE MAC address
+  uint32_t addr_low  = MAC_ADDRESS_LOW;
+
+  // Fill in the XXXX in ble_name
+  byte_to_str(&ble_name[8], (addr_low >> 8) & 0xFF);
+  byte_to_str(&ble_name[10], addr_low & 0xFF);
+  // Set the name we just made
+  Bluefruit.setName(ble_name);   // Check bluefruit.h for supported values
   Bluefruit.Periph.setConnectCallback(connect_callback);
   Bluefruit.Periph.setDisconnectCallback(disconnect_callback);
 
@@ -123,6 +150,8 @@ void setup()
   
     Serial.print("BTLE initialized => ");
     Serial.println(tmpDeviceName);
+
+    Bluefruit.printInfo();
  
 }
 

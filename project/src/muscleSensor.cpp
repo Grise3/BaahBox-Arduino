@@ -117,7 +117,7 @@ void muscleSensorClass::muscleAcquisition(void)
 {
     char tmp[10];
  #ifdef __DEBUG__
-    char tmp2[2048] = "";
+    char tmp2[30] = "";
     #endif
     int index = 0;
 
@@ -140,6 +140,7 @@ void muscleSensorClass::muscleAcquisition(void)
         (1 - digitalRead(config3dHandz.joystickDigitalInputTab[1])) * 4 +
         (1 - digitalRead(config3dHandz.joystickDigitalInputTab[2])) * 2 + 
         1 - digitalRead(config3dHandz.joystickDigitalInputTab[3]);
+
 
     tmp[index] = c;
     index++;
