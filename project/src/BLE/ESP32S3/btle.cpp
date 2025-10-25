@@ -17,14 +17,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include <SPI.h>
+//#include <SPI.h>
+
 #include "btle.hpp"
 
-// #ifdef USE_NRF51
-//     #include "Nrf51/btleNrf51.hpp"
-//     btle51Class ble51;
-// #endif
 
+// Callback pour recevoir la commande
+class MyCallbacks : public BLECharacteristicCallbacks {
+  void onWrite(BLECharacteristic *pCharacteristic) {
+    std::string rxValue = pCharacteristic->getValue();
+    if (rxValue == "CALIBRATE") {
+      //Serial.println("Commande CALIBRATE reçue");
+    }
+  }
+};
 /*=========================================================================*/
 
 //*********************************************
@@ -51,26 +57,40 @@ void btleClass::init(char *inputDeviceName)
   /* Initialise the module */
   memset(deviceName, 0, BTLE_MAX_DEVICE_NAME);
   strncpy(deviceName, inputDeviceName, BTLE_MAX_DEVICE_NAME - 1);
+  BLEDevice::init(inputDeviceName);
+  pServer = BLEDevice::createServer();
+  BLEService *pService = pServer->createService(SERVICE_UUID);
+  // Caractéristique pour recevoir la commande (écriture)
+  pCommandCharacteristic = pService->createCharacteristic(
+                                CHAR_COMMAND_UUID,
+                                BLECharacteristic::PROPERTY_WRITE
+                              );
+  pCommandCharacteristic->setCallbacks(new MyCallbacks());
 
-  Serial.println("begin of btle Init");
+  // Caractéristique pour envoyer la position (notification)
+  pSensorDataCharacteristic = pService->createCharacteristic(
+                                CHAR_POSITION_UUID,
+                                BLECharacteristic::PROPERTY_NOTIFY
+                              );
+  pSensorDataCharacteristic->addDescriptor(new BLE2902());
 
-  #ifdef USE_NRF51
-  ble51.init(inputDeviceName); 
-  #endif
+  pService->start();
+
+  BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
+  pAdvertising->addServiceUUID(SERVICE_UUID);
+  pAdvertising->start();
 }
 
-//*********************************************
+/*********************************************
 //*
 //*       write
 //*
-//*********************************************
+//*********************************************/
 void btleClass::write(char *data, int dataLength)
 {
-  #ifdef USE_NRF51
-  ble51.write(data, dataLength); 
-  #endif
+  pSensorDataCharacteristic->setValue(data);
+  pSensorDataCharacteristic->notify();
 }
-
 /**************************************************************************/
 /*!
   @brief  Constantly poll for new command or response data
@@ -78,7 +98,6 @@ void btleClass::write(char *data, int dataLength)
 /**************************************************************************/
 int btleClass::read(char *command)
 {
-  #ifdef USE_NRF51
-  ble51.read(command); 
-  #endif
+
 }
+
